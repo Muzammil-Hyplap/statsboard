@@ -22,6 +22,16 @@ Route::get('/state', function () {
 })->middleware(['auth', 'verified'])->name('state');
 
 Route::get('/country', [CountryController::class, 'index'])->middleware(['auth', 'verified'])->name('country');
-Route::get('/fetch-state-data', [CountryController::class, 'fetchStateData'])->name('fetchStateData');
+Route::get('/fetch-state-data', [CountryController::class, 'fetchStateData'])
+    ->middleware(['auth', 'verified'])
+    ->name('fetchStateData');
+
+Route::get('/fetch-city-data', [CountryController::class, 'fetchCityData'])
+    ->middleware(['auth', 'verified'])
+    ->name('fetchCityData');
+    
+    Route::get('/fetch-gender-data-by-state', [CountryController::class, 'fetchGenderDataByState'])
+    ->middleware(['auth', 'verified'])
+    ->name('fetchGenderDataByState');
 
 require __DIR__.'/auth.php';

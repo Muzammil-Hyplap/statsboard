@@ -11,6 +11,7 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <h2>State Wise User Distribution</h2>
 
+                    <!-- Country Selection -->
                     <label for="countrySelect">Select Country:</label>
                     <select class="text-white bg-gray-800 border border-gray-700 rounded-lg" id="countrySelect">
                         @foreach($countries as $country)
@@ -20,14 +21,30 @@
                         @endforeach
                     </select>
 
-                    <!-- Bar Chart -->
-                    <h3>Users Per State (Bar Chart)</h3>
-                    <canvas id="userBarChart" width="400" height="200"></canvas>
+                    <!-- State Selection -->
+                    <label for="stateSelect">Select State:</label>
+                    <select class="text-white bg-gray-800 border border-gray-700 rounded-lg" id="stateSelect">
+                        @foreach($userData as $state)
+                        <option value="{{ $state->id }}" {{ $defaultState->id == $state->id ? 'selected' : '' }}>
+                            {{ $state->name }}
+                        </option>
+                        @endforeach
+                    </select>
 
-                    <!-- Pie Chart -->
-                    <h3>Users Per State (Pie Chart)</h3>
-                    <canvas id="userPieChart" width="400" height="200"></canvas>
+                    <h3>Users Per State</h3>
+                    <canvas id="userLineChart" width="400" height="200"></canvas>
 
+                    <div class="flex flex-col md:flex-row gap-5 items-end">
+                        <div class="w-full md:w-1/2 min-h-lg">
+                            <h3>Users Per City</h3>
+                            <canvas id="cityPieChart" width="400" height="200"></canvas>
+                        </div>
+                        <div class="w-full md:w-1/2 min-h-lg">
+                            <h3>Gender Distribution by State</h3>
+                            <canvas id="genderLineChart" width="400" height="200"></canvas>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
@@ -35,20 +52,17 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <script>
-        let userBarChart, userPieChart;
+        let userLineChart, cityPieChart;
 
         function renderCharts(labels, data) {
-            const barCtx = document.getElementById('userBarChart').getContext('2d');
-            const pieCtx = document.getElementById('userPieChart').getContext('2d');
+            const lineCtx = document.getElementById('userLineChart').getContext('2d');
 
-            // Destroy previous charts if they exist
-            if (userBarChart) userBarChart.destroy();
-            if (userPieChart) userPieChart.destroy();
+            if (userLineChart) userLineChart.destroy();
 
-            // Bar Chart
-            userBarChart = new Chart(barCtx, {
-                type: 'bar',
+            userLineChart = new Chart(lineCtx, {
+                type: 'line',
                 data: {
                     labels: labels,
                     datasets: [{
@@ -68,21 +82,25 @@
                     }
                 }
             });
+        }
 
-            // Pie Chart
-            userPieChart = new Chart(pieCtx, {
+        function renderCityChart(labels, data) {
+            const cityCtx = document.getElementById('cityPieChart').getContext('2d');
+
+            if (cityPieChart) cityPieChart.destroy();
+
+            cityPieChart = new Chart(cityCtx, {
                 type: 'pie',
                 data: {
                     labels: labels,
                     datasets: [{
                         data: data,
                         backgroundColor: [
+                            'rgba(75, 192, 192, 0.6)',
                             'rgba(255, 99, 132, 0.6)',
                             'rgba(54, 162, 235, 0.6)',
                             'rgba(255, 206, 86, 0.6)',
-                            'rgba(75, 192, 192, 0.6)',
-                            'rgba(153, 102, 255, 0.6)',
-                            'rgba(255, 159, 64, 0.6)'
+                            'rgba(153, 102, 255, 0.6)'
                         ],
                         borderWidth: 1
                     }]
@@ -97,11 +115,36 @@
             $.ajax({
                 url: '{{ route("fetchStateData") }}',
                 type: 'GET',
-                data: { country_id: countryId },
+                data: {
+                    country_id: countryId
+                },
                 success: function(response) {
                     let labels = response.map(item => item.name);
                     let data = response.map(item => item.users_count);
                     renderCharts(labels, data);
+
+                    $("#stateSelect").html("");
+                    response.forEach(state => {
+                        $("#stateSelect").append(new Option(state.name, state.id));
+                    });
+
+                    let firstState = $("#stateSelect").val();
+                    fetchCityData(firstState);
+                }
+            });
+        }
+
+        function fetchCityData(stateId) {
+            $.ajax({
+                url: '{{ route("fetchCityData") }}',
+                type: 'GET',
+                data: {
+                    state_id: stateId
+                },
+                success: function(response) {
+                    let labels = response.map(item => item.name);
+                    let data = response.map(item => item.users_count);
+                    renderCityChart(labels, data);
                 }
             });
         }
@@ -114,6 +157,68 @@
                 let selectedCountry = $(this).val();
                 fetchData(selectedCountry);
             });
+
+            $("#stateSelect").change(function() {
+                let selectedState = $(this).val();
+                fetchCityData(selectedState);
+            });
         });
+    </script>
+
+    <script>
+        function renderGenderChart(maleCount, femaleCount) {
+            const genderCtx = document.getElementById('genderLineChart').getContext('2d');
+
+            if (genderLineChart) genderLineChart.destroy();
+
+            genderLineChart = new Chart(genderCtx, {
+                type: 'line',
+                data: {
+                    labels: ["Male", "Female"],
+                    datasets: [{
+                        label: "Gender Distribution",
+                        data: [maleCount, femaleCount], // Ensure numeric values
+                        backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+                        borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            suggestedMin: 0,
+                            suggestedMax: Math.max(maleCount, femaleCount) + 5 // Dynamic scaling
+                        }
+                    }
+                }
+            });
+        }
+
+
+        function fetchGenderData(stateId) {
+            $.ajax({
+                url: '{{ route("fetchGenderDataByState") }}',
+                type: 'GET',
+                data: {
+                    state_id: stateId
+                },
+                success: function(response) {
+                    console.log("Gender Data API Response:", response); // Debugging log
+
+                    let maleCount = parseInt(response.male_count) || 0;
+                    let femaleCount = parseInt(response.female_count) || 0;
+
+                    renderGenderChart(maleCount, femaleCount);
+                },
+                error: function(xhr, status, error) {
+                    console.log("Error fetching gender data:", error);
+                }
+            });
+        }
+
     </script>
 </x-app-layout>
