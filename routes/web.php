@@ -16,4 +16,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::get('/country', function () {
+    return view('country');
+})->middleware(['auth', 'verified'])->name('country');
+
+Route::get('/state', function () {
+    return view('state');
+})->middleware(['auth', 'verified'])->name('state');
+
 require __DIR__.'/auth.php';
