@@ -25,6 +25,8 @@ class User extends Authenticatable
         'country_id',
         'state_id',
         'city_id',
+        'gender',
+        'age',
     ];
 
     /**

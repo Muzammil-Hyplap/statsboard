@@ -16,15 +16,15 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Fetch 50 random countries
-        $countries = Country::inRandomOrder()->take(50)->get();
+        $countries = Country::inRandomOrder()->take(30)->get();
 
         foreach ($countries as $country) {
             // Fetch 10 random states for each country
-            $states = State::where('country_id', $country->id)->inRandomOrder()->take(10)->get();
+            $states = State::where('country_id', $country->id)->inRandomOrder()->take(5)->get();
 
             foreach ($states as $state) {
                 // Fetch 10 random cities for each state
-                $cities = City::where('state_id', $state->id)->inRandomOrder()->take(10)->get();
+                $cities = City::where('state_id', $state->id)->inRandomOrder()->take(5)->get();
 
                 foreach ($cities as $city) {
                     // Create random users for this state and city
