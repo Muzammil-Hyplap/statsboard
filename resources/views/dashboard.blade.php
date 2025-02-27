@@ -52,12 +52,6 @@
                             display: false
                         },
                     },
-                    scales: {
-                        projection: {
-                            axis: 'x',
-                            projection: 'equalEarth'
-                        }
-                    }
                 }
             });
         });
