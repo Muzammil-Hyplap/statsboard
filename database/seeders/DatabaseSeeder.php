@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\State;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,11 +13,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $states = State::limit(30)->with('city')->get();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        foreach ($states as $state) {
+            $countofcity = count($state->city)-1;
+
+            if ($countofcity < 0) {
+                continue;
+            }
+
+
+            User::factory()->count(random_int(5, 40))->create([
+                'country_id' => $state->country->id,
+                'state_id' => $state->id,
+                'city_id' => $state->city[random_int(0, $countofcity)]->id,
+            ]);
+        }
     }
 }

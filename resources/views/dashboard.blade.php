@@ -9,22 +9,24 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                      <canvas id="myChart"></canvas>
+                      <canvas id="top-countries"></canvas>
+                      <canvas id="top-states"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const ctx = document.getElementById('myChart');
+        const  topCountries = document.getElementById('top-countries');
+        const  topStates = document.getElementById('top-states');
 
-        new Chart(ctx, {
+        new Chart(topCountries, {
             type: 'bar',
             data: {
-                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                labels: ["{!! join('", "', $countries['names']) !!}"],
                 datasets: [{
-                    label: '# of Votes',
-                    data: [12, 19, 3, 5, 2, 3],
+                    label: 'Users in top 10 countries',
+                    data: [{!! join(', ',$countries['data']) !!}],
                     borderWidth: 1
                 }]
             },
@@ -36,5 +38,7 @@
                 }
             }
         });
+
+
     </script>
 </x-app-layout>
