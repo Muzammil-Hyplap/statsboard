@@ -17,15 +17,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/country', function () {
-    return view('country');
-})->middleware(['auth', 'verified'])->name('country');
-
 Route::get('/state', function () {
     return view('state');
 })->middleware(['auth', 'verified'])->name('state');
 
-Route::get('/country-dashboard', [CountryController::class, 'countryDashboard'])->name('country.dashboard');
-Route::get('/users-by-state', [CountryController::class, 'getUsersByState']);
+Route::get('/country', [CountryController::class, 'index'])->middleware(['auth', 'verified'])->name('country');
+Route::get('/fetch-state-data', [CountryController::class, 'fetchStateData'])->name('fetchStateData');
 
 require __DIR__.'/auth.php';
