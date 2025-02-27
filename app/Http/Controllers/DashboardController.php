@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\City;
 use App\Models\Country;
 use App\Models\State;
 use Illuminate\Support\Facades\DB;
@@ -11,48 +10,55 @@ class DashboardController extends Controller
 {
     public function getDashboard()
     {
-        $countries = ['names'=>[], 'data'=>[]];
         $states = [ 'names'=>[], 'data'=>[]];
-        $cities = [ 'names'=>[], 'data'=>[]];
 
+        $countriesMale = [];
+        $countriesFemale = [];
+        $countries= [];
 
-        $countryQuery = Country::limit(10)
-            ->select('countries.id as id', 'countries.name as name', DB::raw('count(users.id) as user_count'))
+        $countriesRes = Country::limit(20)
+            ->select('countries.id as id', 'countries.name as name', DB::raw('count(users.id) as user_count'), 'users.gender as gender')
             ->join('users', 'users.country_id', '=', 'countries.id' )
-            ->groupBy('countries.id', 'countries.name')
-            ->orderByDesc('user_count');
+            ->groupBy('countries.id', 'countries.name', 'users.gender')
+            ->orderByDesc('user_count')
+            ->get();
 
         $statesRes= State::limit(10)
             ->select('states.id as id', 'states.name as name', DB::raw('count(users.id) as user_count'))
             ->join('users', 'users.state_id', '=', 'states.id' )
             ->groupBy('states.id', 'states.name')
-            ->orderByDesc('user_count')->get();
-
-        $citiesRes = City::limit(10)
-            ->select('cities.id as id', 'cities.name as name', DB::raw('count(users.id) as user_count'))
-            ->join('users', 'users.city_id', '=', 'cities.id' )
-            ->groupBy('cities.id', 'cities.name')
-            ->orderByDesc('user_count')->get();
+            ->orderByDesc('user_count')
+            ->get();
 
 
-        $stateIndex = 0;
-        $cityIndex = 0;
-        foreach($countryQuery->get() as $country){
+        for($i=0;$i<20;$i++){
+            $country =  $countriesRes[$i];
+            $name = $country->name;
+            $gender = $country->gender;
+            $userCount = $country->user_count;
 
-            array_push($countries['names'], $country->name);
-            array_push($countries['data'], $country->user_count);
+            if($gender=="F"){
+                $countriesFemale[$name] = $userCount;
+            }else{
+                $countriesMale[$name] = $userCount;
+            }
 
-            $state = $statesRes[$stateIndex];
-            $stateIndex++;
+
+            if(!isset($countries[$name])){
+                $countries[$name] = $userCount;
+            }else{
+                $countries[$name] += $userCount;
+            }
+
+        }
+
+        for($i=0;$i<10;$i++){
+            $state = $statesRes[$i];
             array_push($states['names'], $state->name);
             array_push($states['data'], $state->user_count);
 
-            $city = $citiesRes[$cityIndex];
-            $cityIndex++;
-            array_push($cities['names'], $city->name);
-            array_push($cities['data'], $city->user_count);
         }
 
-        return view('dashboard', ['countries'=>$countries, 'states'=>$states, 'cities'=>$cities]);
+        return view('dashboard', ['countries'=>$countries,'countriesMale'=>$countriesMale,'countriesFemale'=>$countriesFemale, 'states'=>$states, 'cities'=>[]]);
     }
 }
