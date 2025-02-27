@@ -9,8 +9,15 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                      <canvas id="top-countries"></canvas>
-                      <canvas id="top-states"></canvas>
+                      <div class="flex gap-4 items-end">
+                          <div class="w-1/2">
+                                <canvas id="top-countries"></canvas>
+                          </div>
+                          <div class="w-1/2">
+                            <canvas id="top-states"></canvas>
+                          </div>
+                      </div>
+                      <canvas id="top-cities"></canvas>
                 </div>
             </div>
         </div>
@@ -19,9 +26,10 @@
     <script>
         const  topCountries = document.getElementById('top-countries');
         const  topStates = document.getElementById('top-states');
+        const  topCities = document.getElementById('top-cities');
 
         new Chart(topCountries, {
-            type: 'bar',
+            type: 'pie',
             data: {
                 labels: ["{!! join('", "', $countries['names']) !!}"],
                 datasets: [{
@@ -39,6 +47,42 @@
             }
         });
 
+        new Chart(topStates, {
+            type: 'bar',
+            data: {
+                labels: ["{!! join('", "', $states['names']) !!}"],
+                datasets: [{
+                    label: 'Users in top 10 states',
+                    data: [{!! join(', ',$states['data']) !!}],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
 
+        new Chart(topCities, {
+            type: 'bar',
+            data: {
+                labels: ["{!! join('", "', $cities['names']) !!}"],
+                datasets: [{
+                    label: 'Users in top 10 cities',
+                    data: [{!! join(', ',$cities['data']) !!}],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
     </script>
 </x-app-layout>
