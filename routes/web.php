@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CountryController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -23,5 +24,8 @@ Route::get('/country', function () {
 Route::get('/state', function () {
     return view('state');
 })->middleware(['auth', 'verified'])->name('state');
+
+Route::get('/country-dashboard', [CountryController::class, 'countryDashboard'])->name('country.dashboard');
+Route::get('/users-by-state', [CountryController::class, 'getUsersByState']);
 
 require __DIR__.'/auth.php';
