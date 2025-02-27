@@ -5,7 +5,7 @@
 /public/storage
 /storage/*.key
 /storage/pail
-node_modules
+./node_modules
 testQueries.sql
 /vendor
 .env
