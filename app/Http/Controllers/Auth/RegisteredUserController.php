@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\State;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -35,10 +36,20 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        $state = State::limit(1)->with('city')->get()[0];
+
+        while(count($state->city)==0){
+            $state = State::limit(1)->with('city')->get()[0];
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'state_id' => $state->id,
+            'city_id' => $state->city[0]->id,
+            'country_id' => $state->country->id,
+
         ]);
 
         event(new Registered($user));
