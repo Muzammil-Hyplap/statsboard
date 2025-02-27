@@ -49,6 +49,8 @@ class RegisteredUserController extends Controller
             'state_id' => $state->id,
             'city_id' => $state->city[0]->id,
             'country_id' => $state->country->id,
+            'age'=>22,
+            'gender'=>'M',
 
         ]);
 
