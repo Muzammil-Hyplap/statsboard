@@ -19,19 +19,19 @@ class DashboardController extends Controller
         $countryQuery = Country::limit(10)
             ->select('countries.id as id', 'countries.name as name', DB::raw('count(users.id) as user_count'))
             ->join('users', 'users.country_id', '=', 'countries.id' )
-            ->groupBy('countries.id')
+            ->groupBy('countries.id', 'countries.name')
             ->orderByDesc('user_count');
 
         $statesRes= State::limit(10)
             ->select('states.id as id', 'states.name as name', DB::raw('count(users.id) as user_count'))
             ->join('users', 'users.state_id', '=', 'states.id' )
-            ->groupBy('states.id')
+            ->groupBy('states.id', 'states.name')
             ->orderByDesc('user_count')->get();
 
         $citiesRes = City::limit(10)
             ->select('cities.id as id', 'cities.name as name', DB::raw('count(users.id) as user_count'))
             ->join('users', 'users.city_id', '=', 'cities.id' )
-            ->groupBy('cities.id')
+            ->groupBy('cities.id', 'cities.name')
             ->orderByDesc('user_count')->get();
 
 
