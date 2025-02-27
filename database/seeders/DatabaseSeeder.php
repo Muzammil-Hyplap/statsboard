@@ -13,21 +13,27 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $states = State::limit(30)->with('city')->get();
+        $states = State::get();
+        $countryDone = [];
 
         foreach ($states as $state) {
+            if(count($countryDone)>=30){
+                break;
+            }
+
             $countofcity = count($state->city)-1;
 
-            if ($countofcity < 0) {
+            if ($countofcity < 0 || isset($countryDone[$state->country->name])) {
                 continue;
             }
 
-
-            User::factory()->count(random_int(5, 40))->create([
+            User::factory()->count(random_int(5, 400))->create([
                 'country_id' => $state->country->id,
                 'state_id' => $state->id,
                 'city_id' => $state->city[random_int(0, $countofcity)]->id,
             ]);
+
+            $countryDone[$state->country->name] = true;
         }
     }
 }

@@ -6,6 +6,7 @@
 /storage/*.key
 /storage/pail
 node_modules
+testQueries.sql
 /vendor
 .env
 .env.backup
