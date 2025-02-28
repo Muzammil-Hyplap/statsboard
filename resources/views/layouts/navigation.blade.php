@@ -22,10 +22,7 @@
                         {{ __('Country') }}
                     </x-nav-link>
 
-                    <!-- State Button -->
-                    <x-nav-link :href="route('state')" :active="request()->routeIs('state')">
-                        {{ __('State') }}
-                    </x-nav-link>
+                    
                 </div>
             </div>
 

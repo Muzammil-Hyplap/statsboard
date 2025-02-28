@@ -18,10 +18,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/countries', [DashboardController::class, 'getCountries'])->middleware(['auth', 'verified'])->name('countries');
 });
 
-Route::get('/state', function () {
-    return view('state');
-})->middleware(['auth', 'verified'])->name('state');
-
 Route::get('/country', [CountryController::class, 'index'])->middleware(['auth', 'verified'])->name('country');
 Route::get('/fetch-state-data', [CountryController::class, 'fetchStateData'])
     ->middleware(['auth', 'verified'])

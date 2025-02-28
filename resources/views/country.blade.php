@@ -35,16 +35,18 @@
                     <canvas id="userLineChart" width="400" height="200"></canvas>
 
                     <div class="flex flex-col md:flex-row gap-5 items-end">
-                       
+
+                        
+
+                        <div class="w-full md:w-1/2 min-h-lg">
+                            <h3>Male vs Female Users</h3>
+                            <canvas id="genderBarChart" width="400" height="200"></canvas>
+                        </div>
+
                         <div class="w-full md:w-1/2 min-h-lg">
                             <h3>Users Per City</h3>
                             <canvas id="cityPieChart" width="400" height="200"></canvas>
                         </div>
-
-                        <div class="w-full md:w-1/2 min-h-lg">
-    <h3>Male vs Female Users</h3>
-    <canvas id="genderBarChart" width="400" height="200"></canvas>
-</div>
 
                     </div>
 
@@ -77,12 +79,20 @@
                     }]
                 },
                 options: {
-                    responsive: true,
                     scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(0,0,0,0.4)'
+                            }
+                        },
                         y: {
-                            beginAtZero: true
-                        }
-                    }
+                            grid: {
+                                color: 'rgba(0,0,0,0.4)'
+                            }
+                        },
+
+                    },
+                    responsive: true
                 }
             });
         }
@@ -93,7 +103,7 @@
             if (cityPieChart) cityPieChart.destroy();
 
             cityPieChart = new Chart(cityCtx, {
-                type: 'pie',
+                type: 'doughnut',
                 data: {
                     labels: labels,
                     datasets: [{
@@ -168,60 +178,69 @@
         });
     </script>
 
-<script>
-    let genderBarChart;
+    <script>
+        let genderBarChart;
 
-    function renderGenderChart(maleCount, femaleCount) {
-        const genderCtx = document.getElementById('genderBarChart').getContext('2d');
+        function renderGenderChart(maleCount, femaleCount) {
+            const genderCtx = document.getElementById('genderBarChart').getContext('2d');
 
-        if (genderBarChart) genderBarChart.destroy();
+            if (genderBarChart) genderBarChart.destroy();
 
-        genderBarChart = new Chart(genderCtx, {
-            type: 'bar',
-            data: {
-                labels: ["Male", "Female"],
-                datasets: [{
-                    label: 'Users by Gender in a state',
-                    data: [maleCount, femaleCount],
-                    backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(255, 99, 132, 0.6)'],
-                    borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+            genderBarChart = new Chart(genderCtx, {
+                type: 'bar',
+                data: {
+                    labels: ["Male", "Female"],
+                    datasets: [{
+                        label: 'Users by Gender in a state',
+                        data: [maleCount, femaleCount],
+                        backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+                        borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(0,0,0,0.4)'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(0,0,0,0.4)'
+                            }
+                        },
+
+                    },
+                    responsive: true
                 }
-            }
-        });
-    }
+            });
+        }
 
-    function fetchGenderData(stateId) {
-        $.ajax({
-            url: '{{ route("fetchGenderData") }}',
-            type: 'GET',
-            data: {
-                state_id: stateId
-            },
-            success: function(response) {
-                console.log(response);
-                renderGenderChart(response.male_count, response.female_count);
-            }
-        });
-    }
+        function fetchGenderData(stateId) {
+            $.ajax({
+                url: '{{ route("fetchGenderData") }}',
+                type: 'GET',
+                data: {
+                    state_id: stateId
+                },
+                success: function(response) {
+                    console.log(response);
+                    renderGenderChart(response.male_count, response.female_count);
+                }
+            });
+        }
 
-    $(document).ready(function() {
-        let defaultState = $("#stateSelect").val();
-        fetchGenderData(defaultState);
+        $(document).ready(function() {
+            let defaultState = $("#stateSelect").val();
+            fetchGenderData(defaultState);
 
-        $("#stateSelect").change(function() {
-            let selectedState = $(this).val();
-            fetchGenderData(selectedState);
+            $("#stateSelect").change(function() {
+                let selectedState = $(this).val();
+                console.log(selectedState);
+                fetchGenderData(selectedState);
+            });
         });
-    });
-</script>
+    </script>
 
 </x-app-layout>
