@@ -56,7 +56,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <script>
+    <script type="module">
         let userLineChart, cityPieChart;
 
         function renderCharts(labels, data) {
@@ -207,6 +207,7 @@
                 state_id: stateId
             },
             success: function(response) {
+                console.log(response);
                 renderGenderChart(response.male_count, response.female_count);
             }
         });
