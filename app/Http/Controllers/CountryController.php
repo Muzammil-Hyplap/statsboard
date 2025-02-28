@@ -13,9 +13,9 @@ class CountryController extends Controller
 {
     public function index()
     {
-        $countries = Country::whereHas('user')->get();
+        $countries = Country::whereHas('user')->get(); 
         $defaultCountry = Country::first();
-        $defaultState = State::where('country_id', $defaultCountry->id)->first(); // Get first state of the default country
+        $defaultState = State::where('country_id', $defaultCountry->id)->first(); 
 
         $userData = [];
         $cityData = [];
@@ -45,6 +45,20 @@ class CountryController extends Controller
         return response()->json($cityData);
     }
 
+    public function fetchGenderData(Request $request)
+{
+    $stateId = $request->state_id;
+    $genderData = User::where('state_id', $stateId)
+        ->select(
+            DB::raw("SUM(CASE WHEN gender = 'M' THEN 1 ELSE 0 END) as male_count"),
+            DB::raw("SUM(CASE WHEN gender = 'F' THEN 1 ELSE 0 END) as female_count")
+        )
+        ->first();
+
+    return response()->json($genderData);
+}
+
+
     private function getUsersByState($countryId)
     {
         return State::where('states.country_id', $countryId)
@@ -61,27 +75,5 @@ class CountryController extends Controller
             ->select('cities.name', DB::raw('COUNT(users.id) as users_count'))
             ->groupBy('cities.id', 'cities.name')
             ->get();
-    }
-
-    public function fetchGenderDataByState(Request $request)
-    {
-        $stateId = $request->state_id;
-
-        $users = User::where('state_id', $stateId)->get();
-
-        $maleCount = User::where('state_id', $stateId)->where('gender', 'M')->count();
-        $femaleCount = User::where('state_id', $stateId)->where('gender', 'F')->count();
-
-        // Debugging log
-        \Log::info("Gender Data for State ID {$stateId}:", [
-            'male_count' => $maleCount,
-            'female_count' => $femaleCount
-        ]);
-
-        return response()->json([
-            'users' => $users, // Debugging
-            'male_count' => $maleCount,
-            'female_count' => $femaleCount
-        ]);
     }
 }

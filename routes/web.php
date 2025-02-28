@@ -29,9 +29,9 @@ Route::get('/fetch-state-data', [CountryController::class, 'fetchStateData'])
 Route::get('/fetch-city-data', [CountryController::class, 'fetchCityData'])
     ->middleware(['auth', 'verified'])
     ->name('fetchCityData');
-    
-    Route::get('/fetch-gender-data-by-state', [CountryController::class, 'fetchGenderDataByState'])
-    ->middleware(['auth', 'verified'])
-    ->name('fetchGenderDataByState');
 
-require __DIR__.'/auth.php';
+    Route::get('/fetch-gender-data', [CountryController::class, 'fetchGenderData'])
+    ->middleware(['auth', 'verified'])
+    ->name('fetchGenderData');
+
+require __DIR__ . '/auth.php';

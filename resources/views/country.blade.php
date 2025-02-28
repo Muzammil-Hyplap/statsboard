@@ -35,16 +35,19 @@
                     <canvas id="userLineChart" width="400" height="200"></canvas>
 
                     <div class="flex flex-col md:flex-row gap-5 items-end">
+                       
                         <div class="w-full md:w-1/2 min-h-lg">
                             <h3>Users Per City</h3>
                             <canvas id="cityPieChart" width="400" height="200"></canvas>
                         </div>
+
                         <div class="w-full md:w-1/2 min-h-lg">
-                            <h3>Gender Distribution by State</h3>
-                            <canvas id="genderLineChart" width="400" height="200"></canvas>
-                        </div>
+    <h3>Male vs Female Users</h3>
+    <canvas id="genderBarChart" width="400" height="200"></canvas>
+</div>
 
                     </div>
+
                 </div>
             </div>
         </div>
@@ -165,60 +168,59 @@
         });
     </script>
 
-    <script>
-        function renderGenderChart(maleCount, femaleCount) {
-            const genderCtx = document.getElementById('genderLineChart').getContext('2d');
+<script>
+    let genderBarChart;
 
-            if (genderLineChart) genderLineChart.destroy();
+    function renderGenderChart(maleCount, femaleCount) {
+        const genderCtx = document.getElementById('genderBarChart').getContext('2d');
 
-            genderLineChart = new Chart(genderCtx, {
-                type: 'line',
-                data: {
-                    labels: ["Male", "Female"],
-                    datasets: [{
-                        label: "Gender Distribution",
-                        data: [maleCount, femaleCount], // Ensure numeric values
-                        backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(255, 99, 132, 0.6)'],
-                        borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            suggestedMin: 0,
-                            suggestedMax: Math.max(maleCount, femaleCount) + 5 // Dynamic scaling
-                        }
+        if (genderBarChart) genderBarChart.destroy();
+
+        genderBarChart = new Chart(genderCtx, {
+            type: 'bar',
+            data: {
+                labels: ["Male", "Female"],
+                datasets: [{
+                    label: 'Users by Gender in a state',
+                    data: [maleCount, femaleCount],
+                    backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+                    borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
                 }
-            });
-        }
+            }
+        });
+    }
 
+    function fetchGenderData(stateId) {
+        $.ajax({
+            url: '{{ route("fetchGenderData") }}',
+            type: 'GET',
+            data: {
+                state_id: stateId
+            },
+            success: function(response) {
+                renderGenderChart(response.male_count, response.female_count);
+            }
+        });
+    }
 
-        function fetchGenderData(stateId) {
-            $.ajax({
-                url: '{{ route("fetchGenderDataByState") }}',
-                type: 'GET',
-                data: {
-                    state_id: stateId
-                },
-                success: function(response) {
-                    console.log("Gender Data API Response:", response); // Debugging log
+    $(document).ready(function() {
+        let defaultState = $("#stateSelect").val();
+        fetchGenderData(defaultState);
 
-                    let maleCount = parseInt(response.male_count) || 0;
-                    let femaleCount = parseInt(response.female_count) || 0;
+        $("#stateSelect").change(function() {
+            let selectedState = $(this).val();
+            fetchGenderData(selectedState);
+        });
+    });
+</script>
 
-                    renderGenderChart(maleCount, femaleCount);
-                },
-                error: function(xhr, status, error) {
-                    console.log("Error fetching gender data:", error);
-                }
-            });
-        }
-
-    </script>
 </x-app-layout>
