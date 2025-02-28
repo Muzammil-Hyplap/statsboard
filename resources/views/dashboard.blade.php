@@ -10,8 +10,10 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100 space-y-5">
 
-                    <div class="flex flex-col md:flex-row gap-5 items-end">
+                    <div>
                         <canvas id="countries-world"></canvas>
+                    </div>
+                    <div class="flex flex-col md:flex-row gap-5 items-end">
 
                         <div class="w-full md:w-1/2 min-h-lg">
                             <canvas id="top-countries" class="h-full"></canvas>
@@ -31,17 +33,24 @@
 
     <script type="module">
 
-        fetch('https://unpkg.com/world-atlas/countries-50m.json').then((r) => r.json()).then((data) => {
+        fetch('https://unpkg.com/world-atlas/countries-50m.json').then((r) => r.json()).then( async (data) => {
 
             const countries = ChartGeo.topojson.feature(data, data.objects.countries).features;
 
-            const chart = new Chart(document.getElementById("countries-world"), {
+            const countriesData = await (await fetch("/countries", {
+                'Content-Type':"application/json"
+            })).json()
+            console.log(countriesData)
+
+            const chart = new Chart(document.getElementById("countries-world").getContext('2d'), {
                 type: 'choropleth',
                 data: {
                     labels: countries.map((d) => d.properties.name),
                     datasets: [{
                         label: 'Countries',
-                        data: countries.map((d) => ({feature: d, value: Math.random()})),
+                        data: countries.map((d) => {
+                            return {feature: d, value: countriesData.countries[d.properties.name]?? 0}
+                        }),
                     }]
                 },
                 options: {
@@ -52,6 +61,12 @@
                             display: false
                         },
                     },
+                    scales: {
+                        projection: {
+                            axis: 'x',
+                            projection: 'equalEarth'
+                        }
+                    }
                 }
             });
         });

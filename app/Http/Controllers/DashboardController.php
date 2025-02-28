@@ -61,4 +61,23 @@ class DashboardController extends Controller
 
         return view('dashboard', ['countries'=>$countries,'countriesMale'=>$countriesMale,'countriesFemale'=>$countriesFemale, 'states'=>$states, 'cities'=>[]]);
     }
+
+    public function getCountries()
+    {
+        $countriesRes = Country::select('countries.id as id', 'countries.name as name', DB::raw('count(users.id) as user_count'))
+            ->join('users', 'users.country_id', '=', 'countries.id' )
+            ->groupBy('countries.id', 'countries.name')
+            ->orderByDesc('user_count')
+            ->get();
+
+        $countriesMap = [];
+        foreach($countriesRes as $country){
+            $countriesMap[$country->name] = $country->user_count;
+        }
+
+
+        return response()->json([
+            "countries"=>$countriesMap
+        ]);
+    }
 }
